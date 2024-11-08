@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curator Problem Solver</title>
+    <style>
+        /* Basic styling for the page */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: url('1.jpg') no-repeat center center fixed;
+            background-size: cover;
+            text-align: center;
+            color: #333;
+        }
+
+        h1 {
+            color: #ff69b4;
+            margin-top: 20px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        textarea, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .submit-btn {
+            background-color: #ff69b4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #ff1493;
+        }
+
+        .thank-you-message {
+            display: none;
+            font-size: 1.2em;
+            color: #333;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Curator Problem Solver</h1>
+
+    <form id="problemForm">
+        <!-- Text input for question or doubt -->
+        <label for="question">Type your question or doubt here:</label>
+        <textarea id="question" name="question" rows="4" placeholder="Type your question here..."></textarea>
+
+        <!-- File input for photo upload -->
+        <label>Or click a photo of your problem:</label><br>
+        <input type="file" id="photo" name="photo" accept="image/*" capture="environment">
+
+        <!-- Submit button -->
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+
+    <!-- Thank you message after submission -->
+    <div id="thankYouMessage" class="thank-you-message">
+        Thank you! Your question has been sent.Check your whatsapp for the answer. it may take 1 hour for curator to give you your answer
+    </div>
+
+    <script>
+        document.getElementById("problemForm").onsubmit = async function(e) {
+            e.preventDefault(); // Prevent actual form submission
+
+            // Collect form data
+            const formData = new FormData();
+            const question = document.getElementById("question").value;
+            const photo = document.getElementById("photo").files[0];
+
+            // If there is a question, add it to the form data
+            if (question) {
+                formData.append("caption", `Question: ${question}`);
+            }
+
+            // If a photo is selected, add it to the form data
+            if (photo) {
+                formData.append("photo", photo);
+            }
+
+            // Set up Telegram bot credentials
+            const botToken = "7447671480:AAFtEWOh_y3k5UpIeUnV-5fJdV3L-RlqC6M";
+            const chatId = "906269717";
+
+            // Telegram API URL
+            const url = photo 
+                ? `https://api.telegram.org/bot${botToken}/sendPhoto`
+                : `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            // If there's a photo, use sendPhoto endpoint; else, send a text message
+            if (photo) {
+                await fetch(url, {
+                    method: "POST",
+                    body: formData
+                });
+            } else if (question) {
+                await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: chatId, text: question })
+                });
+            }
+
+            // Display thank you message and hide form
+            document.getElementById("problemForm").style.display = "none";
+            document.getElementById("thankYouMessage").style.display = "block";
+        };
+    </script>
+</body>
+</html>
