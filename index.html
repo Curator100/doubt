@@ -84,7 +84,7 @@
 
     <!-- Thank you message after submission -->
     <div id="thankYouMessage" class="thank-you-message">
-        Thank you! Your question has been sent.Check your whatsapp for the answer. it may take 1 hour for curator to give you your answer
+        Thank you! Your question has been sent.
     </div>
 
     <script>
@@ -96,32 +96,27 @@
             const question = document.getElementById("question").value;
             const photo = document.getElementById("photo").files[0];
 
-            // If there is a question, add it to the form data
-            if (question) {
-                formData.append("caption", `Question: ${question}`);
-            }
-
-            // If a photo is selected, add it to the form data
-            if (photo) {
-                formData.append("photo", photo);
-            }
-
             // Set up Telegram bot credentials
             const botToken = "7447671480:AAFtEWOh_y3k5UpIeUnV-5fJdV3L-RlqC6M";
             const chatId = "906269717";
 
-            // Telegram API URL
-            const url = photo 
-                ? `https://api.telegram.org/bot${botToken}/sendPhoto`
-                : `https://api.telegram.org/bot${botToken}/sendMessage`;
-
-            // If there's a photo, use sendPhoto endpoint; else, send a text message
+            // Check if photo is uploaded, then send as a photo message
             if (photo) {
+                formData.append("chat_id", chatId);  // Add chat ID for the photo
+                formData.append("photo", photo);
+                if (question) {
+                    formData.append("caption", `Question: ${question}`);
+                }
+
+                const url = `https://api.telegram.org/bot${botToken}/sendPhoto`;
                 await fetch(url, {
                     method: "POST",
                     body: formData
                 });
-            } else if (question) {
+            } 
+            // If no photo but there's a question, send as a text message
+            else if (question) {
+                const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
                 await fetch(url, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -129,7 +124,7 @@
                 });
             }
 
-            // Display thank you message and hide form
+            // Show thank you message and hide form
             document.getElementById("problemForm").style.display = "none";
             document.getElementById("thankYouMessage").style.display = "block";
         };
